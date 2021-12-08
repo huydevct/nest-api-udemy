@@ -1,0 +1,8 @@
+### Signup User - Create new user
+POST http://localhost:3000/auth/signup 
+Content-Type: application/json
+
+{
+    "email": "huyvi@pmail.com",
+    "password": "12"
+}
