@@ -1,3 +1,5 @@
+import { AuthGuard } from './../guards/auth.guard';
+import { User } from './user.entity';
 import { AuthService } from './auth.service';
 import { UserDTO } from './dtos/user.dto';
 import { Serialize } from './../interceptors/serialize.interceptor';
@@ -14,7 +16,10 @@ import {
   Patch,
   Post,
   Query,
+  Session,
+  UseGuards,
 } from '@nestjs/common';
+import { CurrentUser } from './decorators/current-user.decorator';
 
 @Controller('auth')
 @Serialize(UserDTO)
@@ -24,14 +29,47 @@ export class UsersController {
     private authService: AuthService,
   ) {}
 
+  // Test session cookie 
+
+  // @Get('/colors/:color')
+  // setColor(@Param('color') color: string, @Session() session: any){
+  //   session.color = color;
+
+  // }
+
+  // @Get('/colors')
+  // getColor(@Session() session: any){
+  //   return session.color;
+  // }
+
+  // @Get('whoami')
+  // whoAmI(@Session() session: any){
+  //   return this.userService.findOne(session.userId);
+  // }
+
+  @Get('whoami')
+  @UseGuards(AuthGuard)
+  whoAmI(@CurrentUser() user: User){
+    return user;
+  }
+
+  @Post('signout')
+  signOut(@Session() session: any) {
+    session.userId = null;
+  }
+
   @Post('signin')
-  signin(@Body() body: CreateUserDTO) {
-    return this.authService.signin(body.email, body.password);
+  async signin(@Body() body: CreateUserDTO, @Session() session: any) {
+    const user = await this.authService.signin(body.email, body.password);
+    session.userId = user.id;
+    return user;
   }
 
   @Post('signup')
-  createUser(@Body() body: CreateUserDTO) {
-    return this.authService.signup(body.email, body.password);
+  async createUser(@Body() body: CreateUserDTO, @Session() session: any) {
+    const user = await this.authService.signup(body.email, body.password);
+    session.userId = user.id;
+    return user;
   }
 
   // @UseInterceptors(new SerializeInterceptor(UserDTO))
