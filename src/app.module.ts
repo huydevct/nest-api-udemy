@@ -12,10 +12,10 @@ const cookieSession = require('cookie-session');
 
 @Module({
   imports: [
-    // ConfigModule.forRoot({
-    //   isGlobal: true,
-    //   envFilePath: `.env.${process.env.NODE_ENV}`,
-    // }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV}`,
+    }),
     // TypeOrmModule.forRootAsync({
     //   inject: [ConfigService],
     //   useFactory: (config: ConfigService) => {
@@ -27,6 +27,7 @@ const cookieSession = require('cookie-session');
     //     };
     //   },
     // }),
+    // TypeOrmModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: process.env.NODE_ENV === 'test' ? 'test.sqlite' : 'db.sqlite',
@@ -46,14 +47,18 @@ const cookieSession = require('cookie-session');
         whitelist: true,
       }),
     },
-  ],
+  ],  
 })
 export class AppModule {
+  constructor(
+    private configService: ConfigService
+  ){}
+
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
         cookieSession({
-          keys: ['asdasdfd'],
+          keys: [this.configService.get('COOKIE_KEY')],
         }),
       )
       .forRoutes('*');
