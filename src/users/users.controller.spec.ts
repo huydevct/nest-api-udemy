@@ -54,7 +54,7 @@ describe('UsersController', () => {
   });
 
   it('find all users returns a list of users with the given email', async () => {
-    const users = await controller.findAllUsers('huy@huy.com');
+    const users = await controller.findAllUsersWithEmail('huy@huy.com');
     expect(users.length).toEqual(1);
     expect(users[0].email).toEqual('huy@huy.com');
   });
